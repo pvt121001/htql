@@ -197,30 +197,30 @@
                     <div class="product-reviews-content">
                         <div class="row">
                             <div class="col-xl-6">
-                                <ol class="comment-list">
-                                    <th:block th:each="comment : ${product.comments}">
-                                        <li class="comment-container">
-                                            <div class="comment-avatar">
-                                                <img th:src="@{/shop/images/avatar/avatar.png}" width="65" height="65" alt="avatar"/>
-                                            </div><!-- End .comment-avatar-->
-                                            <div class="comment-box">
-<!--                                                <div class="ratings-container">-->
-<!--                                                    <div class="product-ratings">-->
-<!--                                                        <span class="ratings" style="width:80%"></span>&lt;!&ndash; End .ratings &ndash;&gt;-->
-<!--                                                    </div>&lt;!&ndash; End .product-ratings &ndash;&gt;-->
-<!--                                                </div>&lt;!&ndash; End .ratings-container &ndash;&gt;-->
+<!--                                <ol class="comment-list">-->
+<!--                                    <th:block th:each="comment : ${product.comments}">-->
+<!--                                        <li class="comment-container">-->
+<!--                                            <div class="comment-avatar">-->
+<!--                                                <img th:src="@{/shop/images/avatar/avatar.png}" width="65" height="65" alt="avatar"/>-->
+<!--                                            </div>&lt;!&ndash; End .comment-avatar&ndash;&gt;-->
+<!--                                            <div class="comment-box">-->
+<!--&lt;!&ndash;                                                <div class="ratings-container">&ndash;&gt;-->
+<!--&lt;!&ndash;                                                    <div class="product-ratings">&ndash;&gt;-->
+<!--&lt;!&ndash;                                                        <span class="ratings" style="width:80%"></span>&lt;!&ndash; End .ratings &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;                                                    </div>&lt;!&ndash; End .product-ratings &ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;                                                </div>&lt;!&ndash; End .ratings-container &ndash;&gt;&ndash;&gt;-->
 
-                                                <div class="comment-info mb-1">
-                                                    <h4 class="avatar-name" th:text="${comment.user.fullName}"></h4> - <span class="comment-date" th:text="${#dates.format(comment.createdAt, 'dd-MM-yyyy')}">Novemeber 15, 2019</span>
-                                                </div><!-- End .comment-info -->
+<!--                                                <div class="comment-info mb-1">-->
+<!--                                                    <h4 class="avatar-name" th:text="${comment.user.fullName}"></h4> - <span class="comment-date" th:text="${#dates.format(comment.createdAt, 'dd-MM-yyyy')}">Novemeber 15, 2019</span>-->
+<!--                                                </div>&lt;!&ndash; End .comment-info &ndash;&gt;-->
 
-                                                <div class="comment-text">
-                                                    <p th:text="${comment.content}"></p>
-                                                </div><!-- End .comment-text -->
-                                            </div><!-- End .comment-box -->
-                                        </li><!-- comment-container -->
-                                    </th:block>
-                                </ol><!-- End .comment-list -->
+<!--                                                <div class="comment-text">-->
+<!--                                                    <p th:text="${comment.content}"></p>-->
+<!--                                                </div>&lt;!&ndash; End .comment-text &ndash;&gt;-->
+<!--                                            </div>&lt;!&ndash; End .comment-box &ndash;&gt;-->
+<!--                                        </li>&lt;!&ndash; comment-container &ndash;&gt;-->
+<!--                                    </th:block>-->
+<!--                                </ol>&lt;!&ndash; End .comment-list &ndash;&gt;-->
                             </div>
 
                             <div class="col-xl-6">
