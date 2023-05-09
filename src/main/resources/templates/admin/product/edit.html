@@ -485,7 +485,8 @@
 
         $('.btn-update-size-count').click(function (event) {
             event.preventDefault();
-            let size = parseInt($('#size').val());
+            let size = $('#size').find(":selected").val();
+            console.log(size)
             let count = parseInt($('#count').val());
             if (isNaN(count)) {
                 $('#invalid-feedback-size').show();
