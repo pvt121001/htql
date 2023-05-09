@@ -15,7 +15,7 @@ import javax.validation.constraints.NotNull;
 @Setter
 @Getter
 public class CreateSizeCountRequest {
-    private int size;
+    private String size;
 
     @Min(0)
     private int count;

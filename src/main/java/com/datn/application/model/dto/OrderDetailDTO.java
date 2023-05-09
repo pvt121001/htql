@@ -26,17 +26,17 @@ public class OrderDetailDTO {
 
     private String statusText;
 
-    private int sizeVn;
+    private String sizeVn;
 
-    private double sizeUs;
+    private String sizeUs;
 
-    private double sizeCm;
+    private String sizeCm;
 
     private String productName;
 
     private String productImg;
 
-    public OrderDetailDTO (long id, long totalPrice, long productPrice, String receiverName, String receiverPhone, String receiverAddress, int status, int sizeVn, String productName, String productImg) {
+    public OrderDetailDTO (long id, long totalPrice, long productPrice, String receiverName, String receiverPhone, String receiverAddress, int status, String sizeVn, String productName, String productImg) {
         this.id = id;
         this.totalPrice = totalPrice;
         this.productPrice = productPrice;

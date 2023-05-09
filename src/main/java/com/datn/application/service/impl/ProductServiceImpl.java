@@ -273,8 +273,8 @@ public class ProductServiceImpl implements ProductService {
 
         //Kiểm trả size
         boolean isValid = false;
-        for (int size : Contant.SIZE_VN) {
-            if (size == createSizeCountRequest.getSize()) {
+        for (String size : Contant.SIZE_VN) {
+            if (size.equalsIgnoreCase(createSizeCountRequest.getSize())) {
                 isValid = true;
                 break;
             }

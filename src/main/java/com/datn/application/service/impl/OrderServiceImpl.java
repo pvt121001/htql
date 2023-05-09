@@ -68,7 +68,7 @@ public class OrderServiceImpl implements OrderService {
         //Kiểm tra size có sẵn
         ProductSize productSize = productSizeRepository.checkProductAndSizeAvailable(createOrderRequest.getProductId(), createOrderRequest.getSize());
         if (productSize == null) {
-            throw new BadRequestException("Size giày sản phẩm tạm hết, Vui lòng chọn sản phẩm khác!");
+            throw new BadRequestException("Size sản phẩm tạm hết, Vui lòng chọn sản phẩm khác!");
         }
 
         //Kiểm tra giá sản phẩm
@@ -123,7 +123,7 @@ public class OrderServiceImpl implements OrderService {
 
         ProductSize productSize = productSizeRepository.checkProductAndSizeAvailable(updateDetailOrder.getProductId(), updateDetailOrder.getSize());
         if (productSize == null) {
-            throw new BadRequestException("Size giày sản phẩm tạm hết, Vui lòng chọn sản phẩm khác");
+            throw new BadRequestException("Size sản phẩm tạm hết, Vui lòng chọn sản phẩm khác");
         }
 
         //Kiểm tra khuyến mại

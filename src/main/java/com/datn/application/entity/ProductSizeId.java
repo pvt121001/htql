@@ -11,5 +11,5 @@ import java.io.Serializable;
 @EqualsAndHashCode
 public class ProductSizeId implements Serializable {
     private String productId;
-    private int size;
+    private String size;
 }
