@@ -264,7 +264,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Integer> getListAvailableSize(String id) {
+    public List<String> getListAvailableSize(String id) {
         return productSizeRepository.findAllSizeOfProduct(id);
     }
 
@@ -315,7 +315,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public boolean checkProductSizeAvailable(String id, int size) {
+    public boolean checkProductSizeAvailable(String id, String size) {
         ProductSize productSize = productSizeRepository.checkProductAndSizeAvailable(id, size);
         if (productSize != null) {
             return true;

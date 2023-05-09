@@ -53,7 +53,7 @@ public interface ProductService {
     List<ProductInfoDTO> getRelatedProducts(String id);
 
     //Lấy size có sẵn
-    List<Integer> getListAvailableSize(String id);
+    List<String> getListAvailableSize(String id);
 
     //Nhập số lượng theo size
     void createSizeCount(CreateSizeCountRequest createSizeCountRequest);
@@ -67,7 +67,7 @@ public interface ProductService {
     List<ShortProductInfoDTO> getAvailableProducts();
 
     //Check size sản phẩm
-    boolean checkProductSizeAvailable(String id, int size);
+    boolean checkProductSizeAvailable(String id, String size);
 
     //Kiểm tra sản phẩm có khuyến mại
     List<ProductInfoDTO> checkPublicPromotion(List<ProductInfoDTO> products);

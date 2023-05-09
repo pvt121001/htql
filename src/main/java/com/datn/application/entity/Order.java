@@ -91,7 +91,7 @@ public class Order {
     @Column(name = "total_price")
     private long totalPrice;
     @Column(name = "size")
-    private int size;
+    private String size;
     @Column(name = "quantity")
     private int quantity;
 

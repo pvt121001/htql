@@ -96,7 +96,7 @@ public class HomeController {
         model.addAttribute("brands",brands);
 
         // Lấy size có sẵn
-        List<Integer> availableSizes = productService.getListAvailableSize(id);
+        List<String> availableSizes = productService.getListAvailableSize(id);
         model.addAttribute("availableSizes", availableSizes);
         if (!availableSizes.isEmpty()) {
             model.addAttribute("canBuy", true);
@@ -113,7 +113,7 @@ public class HomeController {
     }
 
     @GetMapping("/dat-hang")
-    public String getCartPage(Model model, @RequestParam String id,@RequestParam int size){
+    public String getCartPage(Model model, @RequestParam String id,@RequestParam String size){
 
         //Lấy chi tiết sản phẩm
         DetailProductInfoDTO product;
@@ -127,16 +127,16 @@ public class HomeController {
         model.addAttribute("product", product);
 
         //Validate size
-        if (size < 35 || size > 42) {
+        if (size.equalsIgnoreCase("S") || size.equalsIgnoreCase("L") || size.equalsIgnoreCase("XL") || size.equalsIgnoreCase("XXL") || size.equalsIgnoreCase("XXXL")) {
             return "error/404";
         }
 
         //Lấy danh sách size có sẵn
-        List<Integer> availableSizes = productService.getListAvailableSize(id);
+        List<String> availableSizes = productService.getListAvailableSize(id);
         model.addAttribute("availableSizes", availableSizes);
         boolean notFoundSize = true;
-        for (Integer availableSize : availableSizes) {
-            if (availableSize == size) {
+        for (String availableSize : availableSizes) {
+            if (availableSize.equalsIgnoreCase(size)) {
                 notFoundSize = false;
                 break;
             }

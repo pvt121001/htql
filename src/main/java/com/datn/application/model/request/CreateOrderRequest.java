@@ -20,7 +20,7 @@ public class CreateOrderRequest {
 
     @Min(value = 35)
     @Max(value = 42)
-    private int size;
+    private String size;
 
     @NotBlank(message = "Họ tên trống")
     @JsonProperty("receiver_name")

@@ -21,7 +21,7 @@ public class UpdateDetailOrder {
 
     @Min(value = 35)
     @Max(value = 42)
-    private int size;
+    private String size;
 
     @JsonProperty("coupon_code")
     private String couponCode;
