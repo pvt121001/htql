@@ -127,7 +127,7 @@ public class HomeController {
         model.addAttribute("product", product);
 
         //Validate size
-        if (size.equalsIgnoreCase("S") || size.equalsIgnoreCase("L") || size.equalsIgnoreCase("XL") || size.equalsIgnoreCase("XXL") || size.equalsIgnoreCase("XXXL")) {
+        if (size.equalsIgnoreCase("S") && size.equalsIgnoreCase("L") && size.equalsIgnoreCase("XL") && size.equalsIgnoreCase("XXL") && size.equalsIgnoreCase("XXXL")) {
             return "error/404";
         }
 
