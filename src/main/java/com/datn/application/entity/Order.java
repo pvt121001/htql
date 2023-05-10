@@ -20,7 +20,7 @@ import java.sql.Timestamp;
                                 columns = {
                                         @ColumnResult(name = "id", type = Long.class),
                                         @ColumnResult(name = "total_price", type = Long.class),
-                                        @ColumnResult(name = "size_vn", type = Integer.class),
+                                        @ColumnResult(name = "size_vn", type = String.class),
                                         @ColumnResult(name = "product_name", type = String.class),
                                         @ColumnResult(name = "product_img", type = String.class)
                                 }
@@ -38,7 +38,7 @@ import java.sql.Timestamp;
                                         @ColumnResult(name = "receiver_phone", type = String.class),
                                         @ColumnResult(name = "receiver_address", type = String.class),
                                         @ColumnResult(name = "status", type = Integer.class),
-                                        @ColumnResult(name = "size_vn", type = Integer.class),
+                                        @ColumnResult(name = "size_vn", type = String.class),
                                         @ColumnResult(name = "product_name", type = String.class),
                                         @ColumnResult(name = "product_img", type = String.class)
                                 }
@@ -59,8 +59,15 @@ import java.sql.Timestamp;
 @NamedNativeQuery(
         name = "userGetDetailById",
         resultSetMapping = "orderDetailDto",
-        query = "SELECT orders.id, orders.total_price, orders.size size_vn, product.name product_name, orders.price as product_price, " +
-                "orders.receiver_name, orders.receiver_phone, orders.receiver_address, orders.status, " +
+        query = "SELECT orders.id, " +
+                "orders.total_price, " +
+                "orders.price as product_price, " +
+                "orders.receiver_name, " +
+                "orders.receiver_phone," +
+                " orders.receiver_address," +
+                " orders.status, " +
+                "orders.size size_vn, " +
+                "product.name product_name, " +
                 "product.images ->> \"$[0]\" as product_img " +
                 "FROM orders " +
                 "INNER JOIN product " +

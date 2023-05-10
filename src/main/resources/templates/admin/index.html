@@ -104,30 +104,30 @@
                         </div>
                     </section>
                 </div>
-                <div class="col-xl-4">
-                    <section class="card card-featured-left card-featured-secondary">
-                        <div class="card-body">
-                            <div class="widget-summary">
-                                <div class="widget-summary-col widget-summary-col-icon">
-                                    <div class="summary-icon bg-success">
-                                        <i class="fas fa-mail-bulk"></i>
-                                    </div>
-                                </div>
-                                <div class="widget-summary-col">
-                                    <div class="summary">
-                                        <h4 class="title">Tổng số bài viết</h4>
-                                        <div class="info">
-                                            <strong class="amount" id="post-count"></strong>
-                                        </div>
-                                    </div>
-                                    <div class="summary-footer">
-                                        <a class="text-muted text-uppercase" href="/admin/posts">(Xem chi tiết)</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                </div>
+<!--                <div class="col-xl-4">-->
+<!--                    <section class="card card-featured-left card-featured-secondary">-->
+<!--                        <div class="card-body">-->
+<!--                            <div class="widget-summary">-->
+<!--                                <div class="widget-summary-col widget-summary-col-icon">-->
+<!--                                    <div class="summary-icon bg-success">-->
+<!--                                        <i class="fas fa-mail-bulk"></i>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                                <div class="widget-summary-col">-->
+<!--                                    <div class="summary">-->
+<!--                                        <h4 class="title">Tổng số bài viết</h4>-->
+<!--                                        <div class="info">-->
+<!--                                            <strong class="amount" id="post-count"></strong>-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                    <div class="summary-footer">-->
+<!--                                        <a class="text-muted text-uppercase" href="/admin/posts">(Xem chi tiết)</a>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </section>-->
+<!--                </div>-->
             </div>
             <div class="row mb-3">
                 <div class="col-xl-4">
@@ -286,7 +286,9 @@
 <th:block id="js-resources">
     <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
-    <script th:src="@{https://cdn.jsdelivr.net/npm/chart.js@3.1.0/dist/chart.min.js}"></script>
+    <script th:src="@{https://cdn.jsdelivr.net/npm/chart.js@4.2.0/dist/chart.umd.js}"></script>
+
+
     <script>
         let dataChartProductOrderedByCategory = [];
         let labelChartProductOrderedByCategory = [];
@@ -488,8 +490,7 @@
             char30day();
             getCountCategory();
             getCountProduct();
-            getCountOrder();
-            getCountPost();
+            getCountOrder()
             getCountBrands();
             getCountUsers();
         }
@@ -546,18 +547,18 @@
             })
         }
 
-        function getCountPost() {
-            $.ajax({
-                url: '/api/admin/count/posts',
-                type: 'GET',
-                contentType: 'application/json',
-                success: function (data) {
-                    $('#post-count').append(`
-                        <strong>${data}</strong>
-                    `)
-                }
-            })
-        }
+        // function getCountPost() {
+        //     $.ajax({
+        //         url: '/api/admin/count/posts',
+        //         type: 'GET',
+        //         contentType: 'application/json',
+        //         success: function (data) {
+        //             $('#post-count').append(`
+        //                 <strong>${data}</strong>
+        //             `)
+        //         }
+        //     })
+        // }
 
         function getCountBrands() {
             $.ajax({
