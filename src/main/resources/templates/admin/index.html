@@ -572,8 +572,10 @@
                 }
             })
         }
-
         init();
+        setInterval(() => {
+            init();
+        }, 30000)
     </script>
 </th:block>
 
