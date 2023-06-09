@@ -115,7 +115,10 @@
                         <span th:unless="${canBuy}" style="color:#f04e40">Tạm hết hàng</span>
                     </div>
                     <hr class="divider">
-
+                    <div class="form-group">
+                        <label for="quantity">Số lượng:</label>
+                        <input type="number" class="form-control" id="quantity" name="quantity" min="1" step="1" value="1" style="width: 150px;">
+                    </div>
                     <div class="btns">
                         <div class="size-btn" data-toggle="modal" data-target="#modal-size-Choose">
                             <button class="btn btn-primary size trans-btn">
@@ -180,79 +183,13 @@
                     </div><!-- End .product-desc-content -->
                 </div><!-- End .tab-pane -->
 
-<!--                <div class="tab-pane fade fade" id="product-more-info-content" role="tabpanel" aria-labelledby="product-tab-more-info">-->
-<!--                    <div class="products-slider owl-carousel owl-theme dots-top">-->
-<!--                        <th:block th:each="img :${product.feedbackImages}">-->
-<!--                            <div class="product-default inner-quickview inner-icon">-->
-<!--                                <figure>-->
-<!--                                   <img th:src="@{${img}}">-->
-<!--                                </figure>-->
-<!--                            </div>-->
-<!--                        </th:block>-->
-<!--                    </div>&lt;!&ndash; End .products-slider &ndash;&gt;-->
-<!--                </div>&lt;!&ndash; End .tab-pane &ndash;&gt;-->
 
 
                 <div class="tab-pane fade" id="product-reviews-content" role="tabpanel" aria-labelledby="product-tab-reviews">
                     <div class="product-reviews-content">
-                        <div class="row">
-                            <div class="col-xl-6">
-<!--                                <ol class="comment-list">-->
-<!--                                    <th:block th:each="comment : ${product.comments}">-->
-<!--                                        <li class="comment-container">-->
-<!--                                            <div class="comment-avatar">-->
-<!--                                                <img th:src="@{/shop/images/avatar/avatar.png}" width="65" height="65" alt="avatar"/>-->
-<!--                                            </div>&lt;!&ndash; End .comment-avatar&ndash;&gt;-->
-<!--                                            <div class="comment-box">-->
-<!--&lt;!&ndash;                                                <div class="ratings-container">&ndash;&gt;-->
-<!--&lt;!&ndash;                                                    <div class="product-ratings">&ndash;&gt;-->
-<!--&lt;!&ndash;                                                        <span class="ratings" style="width:80%"></span>&lt;!&ndash; End .ratings &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;                                                    </div>&lt;!&ndash; End .product-ratings &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;                                                </div>&lt;!&ndash; End .ratings-container &ndash;&gt;&ndash;&gt;-->
 
-<!--                                                <div class="comment-info mb-1">-->
-<!--                                                    <h4 class="avatar-name" th:text="${comment.user.fullName}"></h4> - <span class="comment-date" th:text="${#dates.format(comment.createdAt, 'dd-MM-yyyy')}">Novemeber 15, 2019</span>-->
-<!--                                                </div>&lt;!&ndash; End .comment-info &ndash;&gt;-->
 
-<!--                                                <div class="comment-text">-->
-<!--                                                    <p th:text="${comment.content}"></p>-->
-<!--                                                </div>&lt;!&ndash; End .comment-text &ndash;&gt;-->
-<!--                                            </div>&lt;!&ndash; End .comment-box &ndash;&gt;-->
-<!--                                        </li>&lt;!&ndash; comment-container &ndash;&gt;-->
-<!--                                    </th:block>-->
-<!--                                </ol>&lt;!&ndash; End .comment-list &ndash;&gt;-->
-                            </div>
 
-                            <div class="col-xl-6">
-                                <div class="add-product-review">
-                                    <form action="#" class="comment-form m-0" id="formCommentProduct">
-<!--                                        <div class="rating-form">-->
-<!--                                            <label for="rating">Đánh giá chất lượng sản phẩm</label>-->
-<!--                                            <div class="rating btn-rating">-->
-<!--                                                <input type="radio" name="rating" value="5" id="rating-5">-->
-<!--                                                <label for="rating-5"></label>-->
-
-<!--                                                <input type="radio" name="rating" value="4" id="rating-4">-->
-<!--                                                <label for="rating-4"></label>-->
-
-<!--                                                <input type="radio" name="rating" value="3" id="rating-3">-->
-<!--                                                <label for="rating-3"></label>-->
-
-<!--                                                <input type="radio" name="rating" value="2" id="rating-2">-->
-<!--                                                <label for="rating-2"></label>-->
-
-<!--                                                <input type="radio" name="rating" value="1" id="rating-1">-->
-<!--                                                <label for="rating-1"></label>-->
-<!--                                            </div>-->
-<!--                                        </div>-->
-                                        <div class="form-group">
-                                            <label>Viết bình luận </label>
-                                            <textarea cols="6" rows="6" name="product_comment" class="form-control form-control-sm product_comment"></textarea>
-                                        </div><!-- End .form-group -->
-                                        <button type="submit" class="btn btn-dark ls-n-15">Gửi bình luận</button>
-                                    </form>
-                                </div><!-- End .add-product-review -->
-                            </div>
                         </div>
                     </div><!-- End .product-reviews-content -->
                 </div><!-- End .tab-pane -->
@@ -264,7 +201,7 @@
 
             <div class="products-slider owl-carousel owl-theme dots-top">
                 <th:block th:each="related : ${relatedProducts}">
-                    <div class="product-default inner-quickview inner-icon">
+                    <div class="product-default Finner-quickview inner-icon">
                         <figure>
                             <a th:href="@{/{slug}/{id}(id=${related.id},slug=${related.slug})}">
                                 <img th:src="@{${related.images}}">
@@ -360,11 +297,12 @@
 
         $('.buy-now').click(function() {
             if (isLogined == true) {
+                let quantity = document.getElementById("quantity").value;
                 let size = $('.size-choose').data("id");
                 if (size == null || size == "") {
                     toastr.warning("Sản phẩm tạm hết hàng. Vui lòng đặt hàng sau.");
                 } else {
-                    location.href = "/dat-hang?id="+[[${product.id}]]+"&size="+size;
+                    location.href = "/dat-hang?id="+[[${product.id}]]+"&size="+size + "&quantity="+quantity;
                 }
             } else {
                 toastr.warning("Vui lòng đăng nhập để đặt hàng");

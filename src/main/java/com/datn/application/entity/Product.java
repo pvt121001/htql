@@ -163,9 +163,8 @@ import java.util.List;
         resultSetMapping = "chartProductDTO",
         query = "select p.name as label, sum(o.quantity) as value from product p " +
                 "inner join orders o on p.id = o.product_id " +
-                "where o.status = 3 and date_format(o.created_at,'%m') = ?1 " +
-                "and date_format(o.created_at,'%Y') = ?2 " +
-                "group by p.created_at order by sum(o.quantity) desc "
+                "where o.status = 3 " +
+                "group by p.name order by sum(o.quantity) desc "
 )
 
 @AllArgsConstructor

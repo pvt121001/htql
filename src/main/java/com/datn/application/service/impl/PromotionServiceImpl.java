@@ -154,12 +154,6 @@ public class PromotionServiceImpl implements PromotionService {
             throw new BadRequestException("Khuyến mại không tồn tại");
         }
 
-        //Check promotion used
-//        int check = promotionRepository.checkPromotionUsed(promotion.get().getCouponCode());
-//        if (check > 0) {
-//            throw new BadRequestException("Khuyến mại đã được sử dụng không thể xóa");
-//        }
-
         try {
             promotionRepository.deleteById(id);
         }catch (Exception e){

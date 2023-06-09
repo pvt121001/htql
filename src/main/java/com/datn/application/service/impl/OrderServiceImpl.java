@@ -71,10 +71,6 @@ public class OrderServiceImpl implements OrderService {
             throw new BadRequestException("Size sản phẩm tạm hết, Vui lòng chọn sản phẩm khác!");
         }
 
-        //Kiểm tra giá sản phẩm
-        if (product.get().getSalePrice() != createOrderRequest.getProductPrice()) {
-            throw new BadRequestException("Giá sản phẩm thay đổi, Vui lòng đặt hàng lại!");
-        }
         Order order = new Order();
         User user = new User();
         user.setId(userId);
@@ -88,10 +84,9 @@ public class OrderServiceImpl implements OrderService {
         order.setSize(createOrderRequest.getSize());
         order.setPrice(createOrderRequest.getProductPrice());
         order.setTotalPrice(createOrderRequest.getTotalPrice());
+        order.setQuantity(createOrderRequest.getQuantity());
         order.setStatus(Contant.ORDER_STATUS);
-        order.setQuantity(1);
         order.setProduct(product.get());
-
         orderRepository.save(order);
         return order;
 
@@ -330,15 +325,15 @@ public class OrderServiceImpl implements OrderService {
         if (statistic != null){
             statistic.setOrder(order);
             statistic.setSales(statistic.getSales() + amount);
-            statistic.setQuantity(statistic.getQuantity() + quantity);
-            statistic.setProfit(statistic.getSales() - (statistic.getQuantity() * order.getProduct().getPrice()));
+            statistic.setQuantity(statistic.getQuantity() + order.getQuantity());
+            statistic.setProfit(statistic.getProfit() + amount - order.getProduct().getPrice());
             statisticRepository.save(statistic);
         }else {
             Statistic statistic1 = new Statistic();
             statistic1.setOrder(order);
             statistic1.setSales(amount);
-            statistic1.setQuantity(quantity);
-            statistic1.setProfit(amount - (quantity * order.getProduct().getPrice()));
+            statistic1.setQuantity(order.getQuantity());
+            statistic1.setProfit(amount - (order.getQuantity() * order.getProduct().getPrice()));
             statistic1.setCreatedAt(new Timestamp(System.currentTimeMillis()));
             statisticRepository.save(statistic1);
         }
@@ -349,8 +344,8 @@ public class OrderServiceImpl implements OrderService {
         if (statistic != null) {
             statistic.setOrder(order);
             statistic.setSales(statistic.getSales() - amount);
-            statistic.setQuantity(statistic.getQuantity() - quantity);
-            statistic.setProfit(statistic.getSales() - (statistic.getQuantity() * order.getProduct().getPrice()));
+            statistic.setQuantity(statistic.getQuantity() + order.getQuantity());
+            statistic.setProfit(statistic.getSales() - (order.getQuantity() * order.getProduct().getPrice()));
             statisticRepository.save(statistic);
         }
     }

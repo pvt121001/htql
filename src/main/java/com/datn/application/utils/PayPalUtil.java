@@ -3,6 +3,7 @@ package com.datn.application.utils;
 import javax.servlet.http.HttpServletRequest;
 
 public class PayPalUtil {
+//    lấy đường dẫn cơ bản của 1 trang web
     public static String getBaseURL(HttpServletRequest request) {
         String scheme = request.getScheme();
         String serverName = request.getServerName();

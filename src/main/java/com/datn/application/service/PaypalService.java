@@ -42,9 +42,11 @@ public class PaypalService {
         redirectUrls.setCancelUrl(cancelUrl);
         redirectUrls.setReturnUrl(successUrl);
         payment.setRedirectUrls(redirectUrls);
-        apiContext.setMaskRequestId(true);
+        apiContext.setMaskRequestId(true);// phương thức này giúp chúng ta mỗi lần thanh toán không trùng id
         return payment.create(apiContext);
     }
+
+//    hàm chấp nhận thanh toán
     public Payment executePayment(String paymentId, String payerId) throws PayPalRESTException{
         Payment payment = new Payment();
         payment.setId(paymentId);

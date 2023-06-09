@@ -104,30 +104,31 @@
                         </div>
                     </section>
                 </div>
-<!--                <div class="col-xl-4">-->
-<!--                    <section class="card card-featured-left card-featured-secondary">-->
-<!--                        <div class="card-body">-->
-<!--                            <div class="widget-summary">-->
-<!--                                <div class="widget-summary-col widget-summary-col-icon">-->
-<!--                                    <div class="summary-icon bg-success">-->
-<!--                                        <i class="fas fa-mail-bulk"></i>-->
-<!--                                    </div>-->
-<!--                                </div>-->
-<!--                                <div class="widget-summary-col">-->
-<!--                                    <div class="summary">-->
-<!--                                        <h4 class="title">Tổng số bài viết</h4>-->
-<!--                                        <div class="info">-->
-<!--                                            <strong class="amount" id="post-count"></strong>-->
-<!--                                        </div>-->
-<!--                                    </div>-->
-<!--                                    <div class="summary-footer">-->
-<!--                                        <a class="text-muted text-uppercase" href="/admin/posts">(Xem chi tiết)</a>-->
-<!--                                    </div>-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </section>-->
-<!--                </div>-->
+                <div class="col-xl-4">
+                    <section class="card card-featured-left card-featured-tertiary mb-3">
+                        <div class="card-body">
+                            <div class="widget-summary">
+                                <div class="widget-summary-col widget-summary-col-icon">
+                                    <div class="summary-icon bg-secondary">
+                                        <i class="fas fa-dollar-sign"></i>
+                                    </div>
+                                </div>
+                                <div class="widget-summary-col">
+                                    <div class="summary">
+                                        <h4 class="title">Doanh thu</h4>
+                                        <div class="info">
+                                            <strong class="amount" id="calcRevenues"></strong>
+                                        </div>
+                                        <h4 class="title">Lợi nhuận</h4>
+                                        <div class="info">
+                                            <strong class="amount" id="calcProfits"></strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
             </div>
             <div class="row mb-3">
                 <div class="col-xl-4">
@@ -227,6 +228,9 @@
                             </button>
                             <a href="/admin" class="btn btn-primary btn-sm">refesh</a>
                         </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-warning btn_export2"><a th:href="@{/api/products/export/excel2}">Xuất dữ liệu</a></button>
+                        </div>
                     </div>
                 </header>
                 <div class="card-body">
@@ -243,6 +247,9 @@
                         <a href="#" class="card-action card-action-dismiss" data-card-dismiss></a>
                     </div>
                     <h2 class="card-title">Số lượng Sản phẩm được mua theo danh mục</h2>
+                    <div class="col-md-5 text-center">
+                        <button class="btn btn-warning btn_export3"><a th:href="@{/api/products/export/excel3}">Xuất dữ liệu</a></button>
+                    </div>
                 </header>
                 <div class="card-body">
                     <canvas id="barChart"></canvas>
@@ -260,6 +267,9 @@
                         <a href="#" class="card-action card-action-dismiss" data-card-dismiss></a>
                     </div>
                     <h2 class="card-title">Số lượng sản phẩm được mua theo nhãn hiệu</h2>
+                    <div class="col-md-5 text-center">
+                        <button class="btn btn-warning btn_export4"><a th:href="@{/api/products/export/excel4}">Xuất dữ liệu</a></button>
+                    </div>
                 </header>
                 <div class="card-body">
                     <canvas id="doughnutBrand"></canvas>
@@ -274,6 +284,9 @@
                         <a href="#" class="card-action card-action-dismiss" data-card-dismiss></a>
                     </div>
                     <h2 class="card-title">Sản phẩm bán chạy trong tháng</h2>
+                    <div class="col-md-5 text-center">
+                        <button class="btn btn-warning btn_export5"><a th:href="@{/api/products/export/excel5}">Xuất dữ liệu</a></button>
+                    </div>
                 </header>
                 <div class="card-body">
                     <canvas id="myChartProduct"></canvas>
@@ -463,7 +476,62 @@
                 }
             })
         }
-
+        $(".btn_export2").on("click",function (){
+            $.ajax({
+                url: '/api/products/export/excel2',
+                type: 'POST',
+                contentType: 'application/json',
+                success: function (data){
+                    toastr.success("Xuất dữ liệu thành công!");
+                    setTimeout(() => location.reload(), 500);
+                },
+                error: function (error){
+                    toastr.success("Xuất dữ liệu thành công!");
+                }
+            });
+        })
+        $(".btn_export3").on("click",function (){
+            $.ajax({
+                url: '/api/products/export/excel3',
+                type: 'GET',
+                contentType: 'application/json',
+                success: function (data){
+                    toastr.success("Xuất dữ liệu thành công!");
+                    setTimeout(() => location.reload(), 500);
+                },
+                error: function (error){
+                    toastr.warning("Xuất dữ liệu thất bại!");
+                }
+            });
+        })
+        $(".btn_export4").on("click",function (){
+            $.ajax({
+                url: '/api/products/export/excel4',
+                type: 'GET',
+                contentType: 'application/json',
+                success: function (data){
+                    toastr.success("Xuất dữ liệu thành công!");
+                    setTimeout(() => location.reload(), 500);
+                },
+                error: function (error){
+                    toastr.warning("Xuất dữ liệu thất bại!");
+                }
+            });
+        })
+        $(".btn_export5").on("click",function (){
+            $.ajax({
+                url: '/api/products/export/excel5',
+                type: 'GET',
+                contentType: 'application/json',
+                success: function (data){
+                    toastr.success("Xuất dữ liệu thành công!");
+                    setTimeout(() => location.reload(), 500);
+                },
+                error: function (error){
+                    toastr.warning("Xuất dữ liệu thất bại!");
+                }
+            });
+        })
         $('#btn-dashboard-filter').click(function () {
             let toDate = $('#datepicker').val();
             let fromDate = $('#datepicker2').val();
@@ -493,8 +561,33 @@
             getCountOrder()
             getCountBrands();
             getCountUsers();
+            getRevenues();
+            getProfits();
         }
-
+        function getRevenues() {
+            $.ajax({
+                url: '/api/admin/calcRevenues',
+                type: 'GET',
+                contentType: 'application/json',
+                success: function (data) {
+                    $('#calcRevenues').append(`
+                        <strong>${data.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</strong>
+                    `)
+                }
+            })
+        }
+        function getProfits() {
+            $.ajax({
+                url: '/api/admin/calcProfits',
+                type: 'GET',
+                contentType: 'application/json',
+                success: function (data) {
+                    $('#calcProfits').append(`
+                        <strong>${data.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</strong>
+                    `)
+                }
+            })
+        }
         function getCountUsers() {
             $.ajax({
                 url: '/api/admin/count/users',
@@ -547,19 +640,6 @@
             })
         }
 
-        // function getCountPost() {
-        //     $.ajax({
-        //         url: '/api/admin/count/posts',
-        //         type: 'GET',
-        //         contentType: 'application/json',
-        //         success: function (data) {
-        //             $('#post-count').append(`
-        //                 <strong>${data}</strong>
-        //             `)
-        //         }
-        //     })
-        // }
-
         function getCountBrands() {
             $.ajax({
                 url: '/api/admin/count/brands',
@@ -572,8 +652,10 @@
                 }
             })
         }
-
         init();
+        // setInterval(() => {
+        //     init();
+        // }, 30000)
     </script>
 </th:block>
 

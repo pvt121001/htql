@@ -31,7 +31,7 @@ import java.util.List;
         query = "select b.name as label, count(o.quantity) as value  from brand b " +
                 "inner join product p on p.brand_id = b.id " +
                 "inner join orders o on p.id = o.product_id " +
-                "where o.status = 3 " +
+                "where o.status = 1 " +
                 "group by b.id"
 )
 

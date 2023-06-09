@@ -38,6 +38,5 @@ public class DetailProductInfoDTO {
     private String description;
 
     private Brand brand;
-//
-//    private List<Comment> comments;
+
 }

@@ -45,14 +45,18 @@
                                         <h2 class="product-title">
                                             <span th:text="${product.name}"></span>
                                         </h2>
-
                                     </div>
+
                                 </td>
                                 <td class="price-col" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT') +' đ'}"></td>
                             </tr>
                             </tbody>
                         </table>
-                        <!-- Pricing Section-->
+
+                        <div class="coupon price-include">
+                            <div class="text">Số lượng</div>
+                            <span th:text="${quantity}"></span>
+                        </div>
                         <div class="pricing childs">
                             <h6 class="not-found-size" style="margin-top: 5px; color: #dc3545;"  th:styleappend="${notFoundSize} == true ? '' : 'display:none'">Size này đã hết. Vui lòng chọn size khác.</h6>
                             <div class="size-btn" data-toggle="modal" data-target="#modal-size-Choose">
@@ -66,7 +70,7 @@
                             </div>
                             <div class="coupon price-include">
                                 <div class="text">Tạm tính</div>
-                                <input class="form-control text-price-input" id="in-price" type="text" th:value="${product.price}" readonly/>
+                                <input class="form-control text-price-input" id="in-price" type="text" th:value="${product.price}*${quantity}" readonly/>
                             </div>
                             <div class="coupon price-include">
                                 <div class="text">Khuyến mãi</div>
@@ -77,6 +81,7 @@
                                 <input class="form-control text-price-input" id="in-total-price" type="text" readonly/>
                             </div>
                         </div>
+
                         <a th:href="@{/{slug}/{id}(id=${product.id}, slug=${product.slug})}">
                             <button class="btn btn-secondary confirm-btn">Quay lại</button>
                         </a>
@@ -127,25 +132,22 @@
 <th:block id="js-resources">
     <script th:src="@{/shop/js/size-choose.js}"></script>
     <script th:inline="javascript">
-        let price = [[${product.price}]];
+        let quantity =[[${quantity}]];
+        let price = [[${product.price}]]*quantity;
 
         let promotionValue = 0;
         let totalPrice = price;
 
         if ([[${product.couponCode}]] != null && [[${product.couponCode}]] != "") {
-            totalPrice = [[${product.promotionPrice}]];
-            promotionValue = price - totalPrice;
+            totalPrice = [[${product.promotionPrice}]] * quantity;
+            promotionValue = price*quantity - totalPrice;
         }
         $('#in-total-price').val(totalPrice);
         $('#in-promotion-value').val(promotionValue);
-
+        $('#in-price').val(price);
         let couponCode = [[${product.couponCode}]];
 
         let sizeVn = [[${sizeVn}]];
-        //
-        // let sizeUs = [[${sizeUs}]];
-        //
-        // let sizeCm = [[${sizeCm}]];
 
         $(function () {
             formatMoney();
@@ -279,7 +281,8 @@
                     coupon_code: couponCode,
                     total_price: totalPrice,
                     product_price: price,
-                    note:notes
+                    note:notes,
+                    quantity: [[${quantity}]]
                 }
                 var myJSON = JSON.stringify(req);
                 $.ajax({

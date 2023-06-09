@@ -1,12 +1,8 @@
 package com.datn.application.model.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderDetailDTO {
@@ -36,6 +32,7 @@ public class OrderDetailDTO {
 
     private String productImg;
 
+    private Integer quantity;
     public OrderDetailDTO (long id, long totalPrice, long productPrice, String receiverName, String receiverPhone, String receiverAddress, int status, String sizeVn, String productName, String productImg) {
         this.id = id;
         this.totalPrice = totalPrice;

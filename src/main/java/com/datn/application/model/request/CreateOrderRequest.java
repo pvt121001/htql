@@ -39,6 +39,8 @@ public class CreateOrderRequest {
     @JsonProperty("total_price")
     private long totalPrice;
 
+    private int quantity;
+
     @JsonProperty("product_price")
     private long productPrice;
 

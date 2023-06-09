@@ -20,5 +20,8 @@ public interface StatisticRepository extends JpaRepository<Statistic, Long> {
     @Query(value = "SELECT * FROM statistic  WHERE date_format(created_at,'%Y-%m-%d') = date_format(NOW(),'%Y-%m-%d')",nativeQuery = true)
     Statistic findByCreatedAT();
 
-
+    @Query(value= "SELECT sum(sales) FROM statistic;", nativeQuery=true)
+    long calcRevenues();
+    @Query(value= "SELECT sum(profit) FROM statistic;", nativeQuery=true)
+    long calcProfits();
 }

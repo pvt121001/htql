@@ -20,10 +20,6 @@ import java.util.List;
 
 @Controller
 public class DashboardController {
-
-//    @Autowired
-//    private PostService postService;
-
     @Autowired
     private ProductService productService;
 
@@ -122,5 +118,16 @@ public class DashboardController {
         Date date = new Date();
         List<ChartDTO> chartDTOS = productRepository.getProductOrders(pageable, date.getMonth() +1, date.getYear() + 1900);
         return ResponseEntity.ok(chartDTOS);
+    }
+
+    @GetMapping("/api/admin/calcRevenues")
+    public ResponseEntity<Object> calcRevenues(){
+        long calcRevenues = statisticRepository.calcRevenues();
+        return ResponseEntity.ok(calcRevenues);
+    }
+    @GetMapping("/api/admin/calcProfits")
+    public ResponseEntity<Object> calcProfits(){
+        long calcProfits = statisticRepository.calcProfits();
+        return ResponseEntity.ok(calcProfits);
     }
 }

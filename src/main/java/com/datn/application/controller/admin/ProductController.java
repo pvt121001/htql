@@ -2,6 +2,9 @@ package com.datn.application.controller.admin;
 
 import com.datn.application.config.Contant;
 import com.datn.application.entity.*;
+import com.datn.application.repository.*;
+import com.datn.application.model.dto.ChartDTO;
+import com.datn.application.model.dto.StatisticDTO;
 import com.datn.application.model.request.CreateProductRequest;
 import com.datn.application.model.request.CreateSizeCountRequest;
 import com.datn.application.model.request.UpdateFeedBackRequest;
@@ -12,12 +15,13 @@ import com.datn.application.service.ImageService;
 import com.datn.application.service.ProductService;
 import com.datn.application.entity.*;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -27,8 +31,12 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.awt.*;
+import java.awt.Color;
 import java.io.*;
 import java.nio.file.Files;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -39,6 +47,15 @@ public class ProductController {
     private static final int BUFFER_SIZE = 4096;
     private static final String TEMP_EXPORT_DATA_DIRECTORY = "\\resources\\reports";
     private static final String EXPORT_DATA_REPORT_FILE_NAME = "San_pham";
+
+    @Autowired
+    private ProductRepository productRepository;
+    @Autowired
+    private StatisticRepository statisticRepository;
+    @Autowired
+    private BrandRepository brandRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     @Autowired
     private ServletContext context;
@@ -188,6 +205,40 @@ public class ProductController {
         }
     }
 
+    @GetMapping("/api/products/export/excel2")
+    public void exportReport2(HttpServletResponse response) {
+        List<StatisticDTO> result = statisticRepository.getStatistic30Day();
+        String fullPath = this.generateExcel2(result, context, "Thống kê doanh thu");
+        if (fullPath != null) {
+            this.fileDownload(fullPath, response, "Thống kê doanh thu", "xlsx");
+        }
+    }
+    @GetMapping("/api/products/export/excel3")
+    public void exportReport3(HttpServletResponse response) {
+        List<ChartDTO> result = categoryRepository.getListProductOrderCategories();
+        String fullPath = this.generateExcel3(result, context, "Thống kê theo danh mục");
+        if (fullPath != null) {
+            this.fileDownload(fullPath, response, "Thống kê theo danh mục", "xlsx");
+        }
+    }
+    @GetMapping("/api/products/export/excel4")
+    public void exportReport4(HttpServletResponse response) {
+        List<ChartDTO> result = brandRepository.getProductOrderBrands();
+        String fullPath = this.generateExcel4(result, context, "Thống kê nhãn hiệu");
+        if (fullPath != null) {
+            this.fileDownload(fullPath, response, "Thống kê nhãn hiệu", "xlsx");
+        }
+    }
+    @GetMapping("/api/products/export/excel5")
+    public void exportReport5(HttpServletResponse response) {
+        Pageable pageable = PageRequest.of(0,10);
+        Date date = new Date();
+        List<ChartDTO> result = productRepository.getProductOrders(pageable, date.getMonth() +1, date.getYear() + 1900);
+        String fullPath = this.generateExcel5(result, context, "Bán chạy trong tháng");
+        if (fullPath != null) {
+            this.fileDownload(fullPath, response, "Bán chạy trong tháng", "xlsx");
+        }
+    }
     private String generateProductExcel(List<Product> products, ServletContext context, String fileName) {
         String filePath = context.getRealPath(TEMP_EXPORT_DATA_DIRECTORY);
         File file = new File(filePath);
@@ -199,13 +250,71 @@ public class ProductController {
 
             XSSFSheet worksheet = workbook.createSheet("Product");
             worksheet.setDefaultColumnWidth(20);
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A1:F1"));
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A2:F2"));
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A3:F5"));
 
-            XSSFRow headerRow = worksheet.createRow(0);
+            XSSFRow titleRow = worksheet.createRow(0);
+            XSSFCellStyle titleCellStyle = workbook.createCellStyle();
+            XSSFFont titlefont = workbook.createFont();
+            titlefont.setColor(new XSSFColor(java.awt.Color.WHITE));
+            titlefont.setFontName("Comic Sans MS");
+            titlefont.setBold(true);
+            titlefont.setFontHeightInPoints((short) 30);
+            titleCellStyle.setAlignment(HorizontalAlignment.CENTER);;
+            titleCellStyle.setFont(titlefont);
+            titleCellStyle.setFillForegroundColor(new XSSFColor(new java.awt.Color(180, 122, 3)));
+            titleCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            XSSFCell title1 = titleRow.createCell(0);
+            title1.setCellValue("Danh sách sản phẩm");
+            title1.setCellStyle(titleCellStyle);
+
+            XSSFRow titleRow2 = worksheet.createRow(1);
+            XSSFCellStyle titleCellStyle2 = workbook.createCellStyle();
+            XSSFFont titlefont2 = workbook.createFont();
+            titlefont2.setFontName("Tahoma");
+            titlefont2.setBold(true);
+            titlefont2.setFontHeightInPoints((short) 15);
+            titleCellStyle.setAlignment(HorizontalAlignment.CENTER);;
+            titlefont2.setColor(new XSSFColor(Color.BLACK));
+            titleCellStyle2.setAlignment(HorizontalAlignment.CENTER);;
+            titleCellStyle2.setFont(titlefont2);
+            titleCellStyle2.setFillForegroundColor(new XSSFColor(new java.awt.Color(180, 122, 3)));
+            titleCellStyle2.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            XSSFCell title2 = titleRow2.createCell(0);
+            LocalDate currentDate = LocalDate.now();
+            int year = currentDate.getYear();
+            int month = currentDate.getMonth().getValue();
+
+            title2.setCellValue("Báo cáo: " + month + "/" + year);
+            title2.setCellStyle(titleCellStyle2);
+
+            XSSFRow titleRow3 = worksheet.createRow(2);
+            XSSFCellStyle titleCellStyle3 = workbook.createCellStyle();
+            XSSFFont titlefont3 = workbook.createFont();
+            titlefont3.setFontName(XSSFFont.DEFAULT_FONT_NAME);
+            titlefont3.setColor(new XSSFColor(Color.BLACK));
+            titleCellStyle3.setFont(titlefont3);
+            titleCellStyle3.setVerticalAlignment(VerticalAlignment.TOP);;
+            titleCellStyle3.setFillForegroundColor(new XSSFColor(new java.awt.Color(255, 255, 255)));
+            titleCellStyle3.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            XSSFCell title3 = titleRow3.createCell(0);
+            title3.setCellStyle(titleCellStyle3);
+            title3.setCellValue("Ghi chú:");
+
+
+            XSSFRow headerRow = worksheet.createRow(5);
 
             XSSFCellStyle headerCellStyle = workbook.createCellStyle();
             XSSFFont font = workbook.createFont();
             font.setFontName(XSSFFont.DEFAULT_FONT_NAME);
             font.setColor(new XSSFColor(java.awt.Color.WHITE));
+            headerCellStyle.setAlignment(HorizontalAlignment.CENTER);;
+            headerCellStyle.setBorderTop(BorderStyle.THIN);
+            headerCellStyle.setBorderBottom(BorderStyle.THIN);
+            headerCellStyle.setBorderLeft(BorderStyle.THIN);
+            headerCellStyle.setBorderRight(BorderStyle.THIN);
+
             headerCellStyle.setFont(font);
             headerCellStyle.setFillForegroundColor(new XSSFColor(new java.awt.Color(135, 206, 250)));
             headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
@@ -230,23 +339,21 @@ public class ProductController {
             priceSell.setCellValue("Giá bán");
             priceSell.setCellStyle(headerCellStyle);
 
-            XSSFCell createdAt = headerRow.createCell(5);
-            createdAt.setCellValue("Ngày tạo");
-            createdAt.setCellStyle(headerCellStyle);
-
-            XSSFCell modifiedAt = headerRow.createCell(6);
-            modifiedAt.setCellValue("Ngày sửa");
-            modifiedAt.setCellStyle(headerCellStyle);
-
-            XSSFCell totalSold = headerRow.createCell(7);
+            XSSFCell totalSold = headerRow.createCell(5);
             totalSold.setCellValue("Đã bán");
             totalSold.setCellStyle(headerCellStyle);
 
+            int i = 0;
             if (!products.isEmpty()) {
-                for (int i = 0; i < products.size(); i++) {
+                for (i = 0; i < products.size(); i++) {
                     Product product = products.get(i);
-                    XSSFRow bodyRow = worksheet.createRow(i + 1);
+                    XSSFRow bodyRow = worksheet.createRow(i + 6);
                     XSSFCellStyle bodyCellStyle = workbook.createCellStyle();
+                    bodyCellStyle.setBorderTop(BorderStyle.THIN);
+                    bodyCellStyle.setBorderBottom(BorderStyle.THIN);
+                    bodyCellStyle.setBorderLeft(BorderStyle.THIN);
+                    bodyCellStyle.setBorderRight(BorderStyle.THIN);
+                    bodyCellStyle.setAlignment(HorizontalAlignment.CENTER);;
                     bodyCellStyle.setFillForegroundColor(new XSSFColor(java.awt.Color.WHITE));
 
                     XSSFCell productIDValue = bodyRow.createCell(0);
@@ -269,23 +376,200 @@ public class ProductController {
                     priceSellValue.setCellValue(product.getSalePrice());
                     priceSellValue.setCellStyle(bodyCellStyle);
 
-                    CreationHelper creationHelper = workbook.getCreationHelper();
-                    CellStyle cellStyle = workbook.createCellStyle();
-                    cellStyle.setDataFormat(creationHelper.createDataFormat().getFormat("dd/MM/yyyy HH:mm:ss"));
-
-                    XSSFCell createdAtValue = bodyRow.createCell(5);
-                    createdAtValue.setCellValue(product.getCreatedAt());
-                    createdAtValue.setCellStyle(cellStyle);
-
-                    XSSFCell updatedAtValue = bodyRow.createCell(6);
-                    updatedAtValue.setCellValue(product.getModifiedAt());
-                    updatedAtValue.setCellStyle(cellStyle);
-
-                    XSSFCell totalSoldValue = bodyRow.createCell(7);
+                    XSSFCell totalSoldValue = bodyRow.createCell(5);
                     totalSoldValue.setCellValue(product.getTotalSold());
                     totalSoldValue.setCellStyle(bodyCellStyle);
                 }
             }
+            int j = i + 7;
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A" + j + ":" + "F" + j));
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("E" + (j + 1) + ":" + "F" + (j + 1)));
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A" + (j + 1) + ":" + "D" + (j + 1)));
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A" + (j + 2) + ":" + "D" + (j + 6)));
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("E" + (j + 2) + ":" + "F" + (j + 6)));
+
+            XSSFRow footerROW = worksheet.createRow(j);
+            XSSFCell signCell = footerROW.createCell(4);
+            XSSFRow footerROW2 = worksheet.createRow(j+1);
+            XSSFCell signCell2 = footerROW2.createCell(4);
+
+            XSSFCellStyle footerStyle = workbook.createCellStyle();
+            XSSFFont footerfont2 = workbook.createFont();
+            footerfont2.setFontName("Tahoma");
+            footerfont2.setBold(true);
+            footerfont2.setFontHeightInPoints((short) 12);
+            footerfont2.setColor(new XSSFColor(Color.BLACK));
+            footerStyle.setAlignment(HorizontalAlignment.CENTER);;
+            footerStyle.setVerticalAlignment(VerticalAlignment.TOP);;
+            footerStyle.setFont(footerfont2);
+            footerStyle.setFillForegroundColor(new XSSFColor(new java.awt.Color(255,255,255)));
+            footerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            signCell.setCellValue("Người tạo báo cáo");
+            signCell.setCellStyle(footerStyle);
+
+            signCell2.setCellStyle(footerStyle);
+            signCell2.setCellValue("Ký tên:");
+
+            workbook.write(fos);
+            return file + "\\" + fileName + xlsx;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    private String generateExcel2(List<StatisticDTO> items, ServletContext context, String fileName) {
+        String filePath = context.getRealPath(TEMP_EXPORT_DATA_DIRECTORY);
+        File file = new File(filePath);
+        if (!file.exists()) {
+            new File(filePath).mkdirs();
+        }
+        try (FileOutputStream fos = new FileOutputStream(file + "\\" + fileName + xlsx);
+             XSSFWorkbook workbook = new XSSFWorkbook();) {
+
+            XSSFSheet worksheet = workbook.createSheet("Profit");
+            worksheet.setDefaultColumnWidth(30);
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A1:D1"));
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A2:D2"));
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A3:D5"));
+
+            XSSFRow titleRow = worksheet.createRow(0);
+            XSSFCellStyle titleCellStyle = workbook.createCellStyle();
+            XSSFFont titlefont = workbook.createFont();
+            titlefont.setColor(new XSSFColor(java.awt.Color.WHITE));
+            titlefont.setFontName("Comic Sans MS");
+            titlefont.setBold(true);
+            titlefont.setFontHeightInPoints((short) 30);
+            titleCellStyle.setAlignment(HorizontalAlignment.CENTER);;
+            titleCellStyle.setFont(titlefont);
+            titleCellStyle.setFillForegroundColor(new XSSFColor(new java.awt.Color(180, 122, 3)));
+            titleCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            XSSFCell title1 = titleRow.createCell(0);
+            title1.setCellValue("Thống kê theo doanh thu");
+            title1.setCellStyle(titleCellStyle);
+
+            XSSFRow titleRow2 = worksheet.createRow(1);
+            XSSFCellStyle titleCellStyle2 = workbook.createCellStyle();
+            XSSFFont titlefont2 = workbook.createFont();
+            titlefont2.setFontName("Tahoma");
+            titlefont2.setBold(true);
+            titlefont2.setFontHeightInPoints((short) 15);
+            titleCellStyle.setAlignment(HorizontalAlignment.CENTER);;
+            titlefont2.setColor(new XSSFColor(Color.BLACK));
+            titleCellStyle2.setAlignment(HorizontalAlignment.CENTER);;
+            titleCellStyle2.setFont(titlefont2);
+            titleCellStyle2.setFillForegroundColor(new XSSFColor(new java.awt.Color(180, 122, 3)));
+            titleCellStyle2.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            XSSFCell title2 = titleRow2.createCell(0);
+            LocalDate currentDate = LocalDate.now();
+            int year = currentDate.getYear();
+            int month = currentDate.getMonth().getValue();
+
+            title2.setCellValue("Báo cáo: " + month + "/" + year);
+            title2.setCellStyle(titleCellStyle2);
+
+            XSSFRow titleRow3 = worksheet.createRow(2);
+            XSSFCellStyle titleCellStyle3 = workbook.createCellStyle();
+            XSSFFont titlefont3 = workbook.createFont();
+            titlefont3.setFontName(XSSFFont.DEFAULT_FONT_NAME);
+            titlefont3.setColor(new XSSFColor(Color.BLACK));
+            titleCellStyle3.setFont(titlefont3);
+            titleCellStyle3.setVerticalAlignment(VerticalAlignment.TOP);;
+            titleCellStyle3.setFillForegroundColor(new XSSFColor(new java.awt.Color(255, 255, 255)));
+            titleCellStyle3.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            XSSFCell title3 = titleRow3.createCell(0);
+            title3.setCellStyle(titleCellStyle3);
+            title3.setCellValue("Ghi chú:");
+
+
+            XSSFRow headerRow = worksheet.createRow(5);
+
+            XSSFCellStyle headerCellStyle = workbook.createCellStyle();
+            XSSFFont font = workbook.createFont();
+            font.setFontName(XSSFFont.DEFAULT_FONT_NAME);
+            font.setColor(new XSSFColor(java.awt.Color.WHITE));
+            headerCellStyle.setAlignment(HorizontalAlignment.CENTER);;
+            headerCellStyle.setBorderTop(BorderStyle.THIN);
+            headerCellStyle.setBorderBottom(BorderStyle.THIN);
+            headerCellStyle.setBorderLeft(BorderStyle.THIN);
+            headerCellStyle.setBorderRight(BorderStyle.THIN);
+
+            headerCellStyle.setFont(font);
+            headerCellStyle.setFillForegroundColor(new XSSFColor(new java.awt.Color(135, 206, 250)));
+            headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+
+            XSSFCell productId = headerRow.createCell(0);
+            productId.setCellValue("Ngày tạo");
+            productId.setCellStyle(headerCellStyle);
+
+            XSSFCell productName = headerRow.createCell(1);
+            productName.setCellValue("Doanh thu");
+            productName.setCellStyle(headerCellStyle);
+
+            XSSFCell productBrand = headerRow.createCell(2);
+            productBrand.setCellValue("Lợi nhuận");
+            productBrand.setCellStyle(headerCellStyle);
+
+            XSSFCell price = headerRow.createCell(3);
+            price.setCellValue("Số lượng");
+            price.setCellStyle(headerCellStyle);
+
+            int i = 0;
+            if (!items.isEmpty()) {
+                for (i = 0; i < items.size(); i++) {
+                    StatisticDTO item = items.get(i);
+                    XSSFRow bodyRow = worksheet.createRow(i + 6);
+                    XSSFCellStyle bodyCellStyle = workbook.createCellStyle();
+                    bodyCellStyle.setBorderTop(BorderStyle.THIN);
+                    bodyCellStyle.setBorderBottom(BorderStyle.THIN);
+                    bodyCellStyle.setBorderLeft(BorderStyle.THIN);
+                    bodyCellStyle.setBorderRight(BorderStyle.THIN);
+                    bodyCellStyle.setAlignment(HorizontalAlignment.CENTER);;
+                    bodyCellStyle.setFillForegroundColor(new XSSFColor(java.awt.Color.WHITE));
+
+                    XSSFCell productIDValue = bodyRow.createCell(0);
+                    productIDValue.setCellValue(item.getCreatedAt());
+                    productIDValue.setCellStyle(bodyCellStyle);
+
+                    XSSFCell productNameValue = bodyRow.createCell(1);
+                    productNameValue.setCellValue(item.getSales());
+                    productNameValue.setCellStyle(bodyCellStyle);
+
+                    XSSFCell ele3 = bodyRow.createCell(2);
+                    ele3.setCellValue(item.getProfit());
+                    ele3.setCellStyle(bodyCellStyle);
+
+                    XSSFCell ele4 = bodyRow.createCell(3);
+                    ele4.setCellValue(item.getQuantity());
+                    ele4.setCellStyle(bodyCellStyle);
+                }
+            }
+            int j = i + 7;
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A" + j + ":" + "D" + j));
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A" + (j + 1) + ":" + "D" + (j + 1)));
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A" + (j + 2) + ":" + "D" + (j + 6)));
+
+            XSSFRow footerROW = worksheet.createRow(j);
+            XSSFCell signCell = footerROW.createCell(0);
+            XSSFRow footerROW2 = worksheet.createRow(j+1);
+            XSSFCell signCell2 = footerROW2.createCell(0);
+
+            XSSFCellStyle footerStyle = workbook.createCellStyle();
+            XSSFFont footerfont2 = workbook.createFont();
+            footerfont2.setFontName("Tahoma");
+            footerfont2.setBold(true);
+            footerfont2.setFontHeightInPoints((short) 12);
+            footerfont2.setColor(new XSSFColor(Color.BLACK));
+            footerStyle.setAlignment(HorizontalAlignment.CENTER);;
+            footerStyle.setVerticalAlignment(VerticalAlignment.TOP);;
+            footerStyle.setFont(footerfont2);
+            footerStyle.setFillForegroundColor(new XSSFColor(new java.awt.Color(255,255,255)));
+            footerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            signCell.setCellValue("Người tạo báo cáo");
+            signCell.setCellStyle(footerStyle);
+
+            signCell2.setCellStyle(footerStyle);
+            signCell2.setCellValue("Ký tên:");
+
             workbook.write(fos);
             return file + "\\" + fileName + xlsx;
         } catch (Exception e) {
@@ -293,6 +577,436 @@ public class ProductController {
         }
     }
 
+    private String generateExcel3(List<ChartDTO> products, ServletContext context, String fileName) {
+        String filePath = context.getRealPath(TEMP_EXPORT_DATA_DIRECTORY);
+        File file = new File(filePath);
+        if (!file.exists()) {
+            new File(filePath).mkdirs();
+        }
+        try (FileOutputStream fos = new FileOutputStream(file + "\\" + fileName + xlsx);
+             XSSFWorkbook workbook = new XSSFWorkbook();) {
+
+            XSSFSheet worksheet = workbook.createSheet("Brand");
+            worksheet.setDefaultColumnWidth(60);
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A1:B1"));
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A2:B2"));
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A3:B5"));
+
+            XSSFRow titleRow = worksheet.createRow(0);
+            XSSFCellStyle titleCellStyle = workbook.createCellStyle();
+            XSSFFont titlefont = workbook.createFont();
+            titlefont.setColor(new XSSFColor(java.awt.Color.WHITE));
+            titlefont.setFontName("Comic Sans MS");
+            titlefont.setBold(true);
+            titlefont.setFontHeightInPoints((short) 30);
+            titleCellStyle.setAlignment(HorizontalAlignment.CENTER);;
+            titleCellStyle.setFont(titlefont);
+            titleCellStyle.setFillForegroundColor(new XSSFColor(new java.awt.Color(180, 122, 3)));
+            titleCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            XSSFCell title1 = titleRow.createCell(0);
+            title1.setCellValue("Thống kê theo danh mục");
+            title1.setCellStyle(titleCellStyle);
+
+            XSSFRow titleRow2 = worksheet.createRow(1);
+            XSSFCellStyle titleCellStyle2 = workbook.createCellStyle();
+            XSSFFont titlefont2 = workbook.createFont();
+            titlefont2.setFontName("Tahoma");
+            titlefont2.setBold(true);
+            titlefont2.setFontHeightInPoints((short) 15);
+            titleCellStyle.setAlignment(HorizontalAlignment.CENTER);;
+            titlefont2.setColor(new XSSFColor(Color.BLACK));
+            titleCellStyle2.setAlignment(HorizontalAlignment.CENTER);;
+            titleCellStyle2.setFont(titlefont2);
+            titleCellStyle2.setFillForegroundColor(new XSSFColor(new java.awt.Color(180, 122, 3)));
+            titleCellStyle2.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            XSSFCell title2 = titleRow2.createCell(0);
+            LocalDate currentDate = LocalDate.now();
+            int year = currentDate.getYear();
+            int month = currentDate.getMonth().getValue();
+
+            title2.setCellValue("Báo cáo: " + month + "/" + year);
+            title2.setCellStyle(titleCellStyle2);
+
+            XSSFRow titleRow3 = worksheet.createRow(2);
+            XSSFCellStyle titleCellStyle3 = workbook.createCellStyle();
+            XSSFFont titlefont3 = workbook.createFont();
+            titlefont3.setFontName(XSSFFont.DEFAULT_FONT_NAME);
+            titlefont3.setColor(new XSSFColor(Color.BLACK));
+            titleCellStyle3.setFont(titlefont3);
+            titleCellStyle3.setVerticalAlignment(VerticalAlignment.TOP);;
+            titleCellStyle3.setFillForegroundColor(new XSSFColor(new java.awt.Color(255, 255, 255)));
+            titleCellStyle3.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            XSSFCell title3 = titleRow3.createCell(0);
+            title3.setCellStyle(titleCellStyle3);
+            title3.setCellValue("Ghi chú:");
+
+
+            XSSFRow headerRow = worksheet.createRow(5);
+
+            XSSFCellStyle headerCellStyle = workbook.createCellStyle();
+            XSSFFont font = workbook.createFont();
+            font.setFontName(XSSFFont.DEFAULT_FONT_NAME);
+            font.setColor(new XSSFColor(java.awt.Color.WHITE));
+            headerCellStyle.setAlignment(HorizontalAlignment.CENTER);;
+            headerCellStyle.setBorderTop(BorderStyle.THIN);
+            headerCellStyle.setBorderBottom(BorderStyle.THIN);
+            headerCellStyle.setBorderLeft(BorderStyle.THIN);
+            headerCellStyle.setBorderRight(BorderStyle.THIN);
+
+            headerCellStyle.setFont(font);
+            headerCellStyle.setFillForegroundColor(new XSSFColor(new java.awt.Color(135, 206, 250)));
+            headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+            XSSFCell productId = headerRow.createCell(0);
+            productId.setCellValue("Tên danh mục");
+            productId.setCellStyle(headerCellStyle);
+
+            XSSFCell productName = headerRow.createCell(1);
+            productName.setCellValue("Đã bán");
+            productName.setCellStyle(headerCellStyle);
+
+            int i = 0;
+            if (!products.isEmpty()) {
+                for (i = 0; i < products.size(); i++) {
+                    ChartDTO product = products.get(i);
+                    XSSFRow bodyRow = worksheet.createRow(i + 6);
+                    XSSFCellStyle bodyCellStyle = workbook.createCellStyle();
+                    bodyCellStyle.setBorderTop(BorderStyle.THIN);
+                    bodyCellStyle.setBorderBottom(BorderStyle.THIN);
+                    bodyCellStyle.setBorderLeft(BorderStyle.THIN);
+                    bodyCellStyle.setBorderRight(BorderStyle.THIN);
+                    bodyCellStyle.setAlignment(HorizontalAlignment.CENTER);;
+                    bodyCellStyle.setFillForegroundColor(new XSSFColor(java.awt.Color.WHITE));
+
+                    XSSFCell productIDValue = bodyRow.createCell(0);
+                    productIDValue.setCellValue(product.getLabel());
+                    productIDValue.setCellStyle(bodyCellStyle);
+
+                    XSSFCell productNameValue = bodyRow.createCell(1);
+                    productNameValue.setCellValue(product.getValue());
+                    productNameValue.setCellStyle(bodyCellStyle);
+                }
+            }
+            int j = i + 7;
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A" + j + ":" + "F" + j));
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A" + (j + 1) + ":" + "B" + (j + 1)));
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A" + (j + 2) + ":" + "B" + (j + 6)));
+
+            XSSFRow footerROW = worksheet.createRow(j);
+            XSSFCell signCell = footerROW.createCell(0);
+            XSSFRow footerROW2 = worksheet.createRow(j+1);
+            XSSFCell signCell2 = footerROW2.createCell(0);
+
+            XSSFCellStyle footerStyle = workbook.createCellStyle();
+            XSSFFont footerfont2 = workbook.createFont();
+            footerfont2.setFontName("Tahoma");
+            footerfont2.setBold(true);
+            footerfont2.setFontHeightInPoints((short) 12);
+            footerfont2.setColor(new XSSFColor(Color.BLACK));
+            footerStyle.setAlignment(HorizontalAlignment.CENTER);;
+            footerStyle.setVerticalAlignment(VerticalAlignment.TOP);;
+            footerStyle.setFont(footerfont2);
+            footerStyle.setFillForegroundColor(new XSSFColor(new java.awt.Color(255,255,255)));
+            footerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            signCell.setCellValue("Người tạo báo cáo");
+            signCell.setCellStyle(footerStyle);
+
+            signCell2.setCellStyle(footerStyle);
+            signCell2.setCellValue("Ký tên:");
+
+            workbook.write(fos);
+            return file + "\\" + fileName + xlsx;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String generateExcel4(List<ChartDTO> products, ServletContext context, String fileName) {
+        String filePath = context.getRealPath(TEMP_EXPORT_DATA_DIRECTORY);
+        File file = new File(filePath);
+        if (!file.exists()) {
+            new File(filePath).mkdirs();
+        }
+        try (FileOutputStream fos = new FileOutputStream(file + "\\" + fileName + xlsx);
+             XSSFWorkbook workbook = new XSSFWorkbook();) {
+
+            XSSFSheet worksheet = workbook.createSheet("Brand");
+            worksheet.setDefaultColumnWidth(60);
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A1:B1"));
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A2:B2"));
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A3:B5"));
+
+            XSSFRow titleRow = worksheet.createRow(0);
+            XSSFCellStyle titleCellStyle = workbook.createCellStyle();
+            XSSFFont titlefont = workbook.createFont();
+            titlefont.setColor(new XSSFColor(java.awt.Color.WHITE));
+            titlefont.setFontName("Comic Sans MS");
+            titlefont.setBold(true);
+            titlefont.setFontHeightInPoints((short) 30);
+            titleCellStyle.setAlignment(HorizontalAlignment.CENTER);;
+            titleCellStyle.setFont(titlefont);
+            titleCellStyle.setFillForegroundColor(new XSSFColor(new java.awt.Color(180, 122, 3)));
+            titleCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            XSSFCell title1 = titleRow.createCell(0);
+            title1.setCellValue("Thống kê theo nhãn hiệu");
+            title1.setCellStyle(titleCellStyle);
+
+            XSSFRow titleRow2 = worksheet.createRow(1);
+            XSSFCellStyle titleCellStyle2 = workbook.createCellStyle();
+            XSSFFont titlefont2 = workbook.createFont();
+            titlefont2.setFontName("Tahoma");
+            titlefont2.setBold(true);
+            titlefont2.setFontHeightInPoints((short) 15);
+            titleCellStyle.setAlignment(HorizontalAlignment.CENTER);;
+            titlefont2.setColor(new XSSFColor(Color.BLACK));
+            titleCellStyle2.setAlignment(HorizontalAlignment.CENTER);;
+            titleCellStyle2.setFont(titlefont2);
+            titleCellStyle2.setFillForegroundColor(new XSSFColor(new java.awt.Color(180, 122, 3)));
+            titleCellStyle2.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            XSSFCell title2 = titleRow2.createCell(0);
+            LocalDate currentDate = LocalDate.now();
+            int year = currentDate.getYear();
+            int month = currentDate.getMonth().getValue();
+
+            title2.setCellValue("Báo cáo: " + month + "/" + year);
+            title2.setCellStyle(titleCellStyle2);
+
+            XSSFRow titleRow3 = worksheet.createRow(2);
+            XSSFCellStyle titleCellStyle3 = workbook.createCellStyle();
+            XSSFFont titlefont3 = workbook.createFont();
+            titlefont3.setFontName(XSSFFont.DEFAULT_FONT_NAME);
+            titlefont3.setColor(new XSSFColor(Color.BLACK));
+            titleCellStyle3.setFont(titlefont3);
+            titleCellStyle3.setVerticalAlignment(VerticalAlignment.TOP);;
+            titleCellStyle3.setFillForegroundColor(new XSSFColor(new java.awt.Color(255, 255, 255)));
+            titleCellStyle3.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            XSSFCell title3 = titleRow3.createCell(0);
+            title3.setCellStyle(titleCellStyle3);
+            title3.setCellValue("Ghi chú:");
+
+
+            XSSFRow headerRow = worksheet.createRow(5);
+
+            XSSFCellStyle headerCellStyle = workbook.createCellStyle();
+            XSSFFont font = workbook.createFont();
+            font.setFontName(XSSFFont.DEFAULT_FONT_NAME);
+            font.setColor(new XSSFColor(java.awt.Color.WHITE));
+            headerCellStyle.setAlignment(HorizontalAlignment.CENTER);;
+            headerCellStyle.setBorderTop(BorderStyle.THIN);
+            headerCellStyle.setBorderBottom(BorderStyle.THIN);
+            headerCellStyle.setBorderLeft(BorderStyle.THIN);
+            headerCellStyle.setBorderRight(BorderStyle.THIN);
+
+            headerCellStyle.setFont(font);
+            headerCellStyle.setFillForegroundColor(new XSSFColor(new java.awt.Color(135, 206, 250)));
+            headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+            XSSFCell productId = headerRow.createCell(0);
+            productId.setCellValue("Tên nhãn hiệu");
+            productId.setCellStyle(headerCellStyle);
+
+            XSSFCell productName = headerRow.createCell(1);
+            productName.setCellValue("Đã bán");
+            productName.setCellStyle(headerCellStyle);
+
+            int i = 0;
+            if (!products.isEmpty()) {
+                for (i = 0; i < products.size(); i++) {
+                    ChartDTO product = products.get(i);
+                    XSSFRow bodyRow = worksheet.createRow(i + 6);
+                    XSSFCellStyle bodyCellStyle = workbook.createCellStyle();
+                    bodyCellStyle.setBorderTop(BorderStyle.THIN);
+                    bodyCellStyle.setBorderBottom(BorderStyle.THIN);
+                    bodyCellStyle.setBorderLeft(BorderStyle.THIN);
+                    bodyCellStyle.setBorderRight(BorderStyle.THIN);
+                    bodyCellStyle.setAlignment(HorizontalAlignment.CENTER);;
+                    bodyCellStyle.setFillForegroundColor(new XSSFColor(java.awt.Color.WHITE));
+
+                    XSSFCell productIDValue = bodyRow.createCell(0);
+                    productIDValue.setCellValue(product.getLabel());
+                    productIDValue.setCellStyle(bodyCellStyle);
+
+                    XSSFCell productNameValue = bodyRow.createCell(1);
+                    productNameValue.setCellValue(product.getValue());
+                    productNameValue.setCellStyle(bodyCellStyle);
+                }
+            }
+            int j = i + 7;
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A" + j + ":" + "F" + j));
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A" + (j + 1) + ":" + "B" + (j + 1)));
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A" + (j + 2) + ":" + "B" + (j + 6)));
+
+            XSSFRow footerROW = worksheet.createRow(j);
+            XSSFCell signCell = footerROW.createCell(0);
+            XSSFRow footerROW2 = worksheet.createRow(j+1);
+            XSSFCell signCell2 = footerROW2.createCell(0);
+
+            XSSFCellStyle footerStyle = workbook.createCellStyle();
+            XSSFFont footerfont2 = workbook.createFont();
+            footerfont2.setFontName("Tahoma");
+            footerfont2.setBold(true);
+            footerfont2.setFontHeightInPoints((short) 12);
+            footerfont2.setColor(new XSSFColor(Color.BLACK));
+            footerStyle.setAlignment(HorizontalAlignment.CENTER);;
+            footerStyle.setVerticalAlignment(VerticalAlignment.TOP);;
+            footerStyle.setFont(footerfont2);
+            footerStyle.setFillForegroundColor(new XSSFColor(new java.awt.Color(255,255,255)));
+            footerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            signCell.setCellValue("Người tạo báo cáo");
+            signCell.setCellStyle(footerStyle);
+
+            signCell2.setCellStyle(footerStyle);
+            signCell2.setCellValue("Ký tên:");
+
+            workbook.write(fos);
+            return file + "\\" + fileName + xlsx;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    private String generateExcel5(List<ChartDTO> products, ServletContext context, String fileName) {
+        String filePath = context.getRealPath(TEMP_EXPORT_DATA_DIRECTORY);
+        File file = new File(filePath);
+        if (!file.exists()) {
+            new File(filePath).mkdirs();
+        }
+        try (FileOutputStream fos = new FileOutputStream(file + "\\" + fileName + xlsx);
+             XSSFWorkbook workbook = new XSSFWorkbook();) {
+
+            XSSFSheet worksheet = workbook.createSheet("ProductMonth");
+            worksheet.setDefaultColumnWidth(60);
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A1:B1"));
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A2:B2"));
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A3:B5"));
+
+            XSSFRow titleRow = worksheet.createRow(0);
+            XSSFCellStyle titleCellStyle = workbook.createCellStyle();
+            XSSFFont titlefont = workbook.createFont();
+            titlefont.setColor(new XSSFColor(java.awt.Color.WHITE));
+            titlefont.setFontName("Comic Sans MS");
+            titlefont.setBold(true);
+            titlefont.setFontHeightInPoints((short) 30);
+            titleCellStyle.setAlignment(HorizontalAlignment.CENTER);;
+            titleCellStyle.setFont(titlefont);
+            titleCellStyle.setFillForegroundColor(new XSSFColor(new java.awt.Color(180, 122, 3)));
+            titleCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            XSSFCell title1 = titleRow.createCell(0);
+            title1.setCellValue("Bán chạy trong tháng");
+            title1.setCellStyle(titleCellStyle);
+
+            XSSFRow titleRow2 = worksheet.createRow(1);
+            XSSFCellStyle titleCellStyle2 = workbook.createCellStyle();
+            XSSFFont titlefont2 = workbook.createFont();
+            titlefont2.setFontName("Tahoma");
+            titlefont2.setBold(true);
+            titlefont2.setFontHeightInPoints((short) 15);
+            titleCellStyle.setAlignment(HorizontalAlignment.CENTER);;
+            titlefont2.setColor(new XSSFColor(Color.BLACK));
+            titleCellStyle2.setAlignment(HorizontalAlignment.CENTER);;
+            titleCellStyle2.setFont(titlefont2);
+            titleCellStyle2.setFillForegroundColor(new XSSFColor(new java.awt.Color(180, 122, 3)));
+            titleCellStyle2.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            XSSFCell title2 = titleRow2.createCell(0);
+            LocalDate currentDate = LocalDate.now();
+            int year = currentDate.getYear();
+            int month = currentDate.getMonth().getValue();
+
+            title2.setCellValue("Báo cáo: " + month + "/" + year);
+            title2.setCellStyle(titleCellStyle2);
+
+            XSSFRow titleRow3 = worksheet.createRow(2);
+            XSSFCellStyle titleCellStyle3 = workbook.createCellStyle();
+            XSSFFont titlefont3 = workbook.createFont();
+            titlefont3.setFontName(XSSFFont.DEFAULT_FONT_NAME);
+            titlefont3.setColor(new XSSFColor(Color.BLACK));
+            titleCellStyle3.setFont(titlefont3);
+            titleCellStyle3.setVerticalAlignment(VerticalAlignment.TOP);;
+            titleCellStyle3.setFillForegroundColor(new XSSFColor(new java.awt.Color(255, 255, 255)));
+            titleCellStyle3.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            XSSFCell title3 = titleRow3.createCell(0);
+            title3.setCellStyle(titleCellStyle3);
+            title3.setCellValue("Ghi chú:");
+
+
+            XSSFRow headerRow = worksheet.createRow(5);
+
+            XSSFCellStyle headerCellStyle = workbook.createCellStyle();
+            XSSFFont font = workbook.createFont();
+            font.setFontName(XSSFFont.DEFAULT_FONT_NAME);
+            font.setColor(new XSSFColor(java.awt.Color.WHITE));
+            headerCellStyle.setAlignment(HorizontalAlignment.CENTER);;
+            headerCellStyle.setBorderTop(BorderStyle.THIN);
+            headerCellStyle.setBorderBottom(BorderStyle.THIN);
+            headerCellStyle.setBorderLeft(BorderStyle.THIN);
+            headerCellStyle.setBorderRight(BorderStyle.THIN);
+
+            headerCellStyle.setFont(font);
+            headerCellStyle.setFillForegroundColor(new XSSFColor(new java.awt.Color(135, 206, 250)));
+            headerCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+            XSSFCell productId = headerRow.createCell(0);
+            productId.setCellValue("Tên sản phẩm");
+            productId.setCellStyle(headerCellStyle);
+
+            XSSFCell productName = headerRow.createCell(1);
+            productName.setCellValue("Đã bán");
+            productName.setCellStyle(headerCellStyle);
+
+            int i = 0;
+            if (!products.isEmpty()) {
+                for (i = 0; i < products.size(); i++) {
+                    ChartDTO product = products.get(i);
+                    XSSFRow bodyRow = worksheet.createRow(i + 6);
+                    XSSFCellStyle bodyCellStyle = workbook.createCellStyle();
+                    bodyCellStyle.setBorderTop(BorderStyle.THIN);
+                    bodyCellStyle.setBorderBottom(BorderStyle.THIN);
+                    bodyCellStyle.setBorderLeft(BorderStyle.THIN);
+                    bodyCellStyle.setBorderRight(BorderStyle.THIN);
+                    bodyCellStyle.setAlignment(HorizontalAlignment.CENTER);;
+                    bodyCellStyle.setFillForegroundColor(new XSSFColor(java.awt.Color.WHITE));
+
+                    XSSFCell productIDValue = bodyRow.createCell(0);
+                    productIDValue.setCellValue(product.getLabel());
+                    productIDValue.setCellStyle(bodyCellStyle);
+
+                    XSSFCell productNameValue = bodyRow.createCell(1);
+                    productNameValue.setCellValue(product.getValue());
+                    productNameValue.setCellStyle(bodyCellStyle);
+                }
+            }
+            int j = i + 7;
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A" + j + ":" + "B" + j));
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A" + (j + 1) + ":" + "B" + (j + 1)));
+            worksheet.addMergedRegion(CellRangeAddress.valueOf("A" + (j + 2) + ":" + "B" + (j + 6)));
+
+            XSSFRow footerROW = worksheet.createRow(j);
+            XSSFCell signCell = footerROW.createCell(0);
+            XSSFRow footerROW2 = worksheet.createRow(j+1);
+            XSSFCell signCell2 = footerROW2.createCell(0);
+
+            XSSFCellStyle footerStyle = workbook.createCellStyle();
+            XSSFFont footerfont2 = workbook.createFont();
+            footerfont2.setFontName("Tahoma");
+            footerfont2.setBold(true);
+            footerfont2.setFontHeightInPoints((short) 12);
+            footerfont2.setColor(new XSSFColor(Color.BLACK));
+            footerStyle.setAlignment(HorizontalAlignment.CENTER);;
+            footerStyle.setVerticalAlignment(VerticalAlignment.TOP);;
+            footerStyle.setFont(footerfont2);
+            footerStyle.setFillForegroundColor(new XSSFColor(new java.awt.Color(255,255,255)));
+            footerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            signCell.setCellValue("Người tạo báo cáo");
+            signCell.setCellStyle(footerStyle);
+
+            signCell2.setCellStyle(footerStyle);
+            signCell2.setCellValue("Ký tên:");
+
+            workbook.write(fos);
+            return file + "\\" + fileName + xlsx;
+        } catch (Exception e) {
+            return null;
+        }
+    }
     private void fileDownload(String fullPath, HttpServletResponse response, String fileName, String type) {
         File file = new File(fullPath);
         if (file.exists()) {

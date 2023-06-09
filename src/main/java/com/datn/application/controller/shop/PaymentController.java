@@ -1,4 +1,4 @@
-package com.datn.application.controller.admin;
+package com.datn.application.controller.shop;
 
 import com.datn.application.config.Contant;
 import com.datn.application.config.PaypalPaymentIntent;
@@ -41,10 +41,7 @@ public class PaymentController {
 
     @Autowired
     private OrderRepository orderRepository;
-//    @GetMapping("/")
-//    public String index(){
-//        return "index";
-//    }
+
     @PostMapping("/pay")
     public String pay(HttpServletRequest request, @RequestParam(defaultValue = "0") double price,long id ){
         String cancelUrl = PayPalUtil.getBaseURL(request) + "/" + URL_PAYPAL_CANCEL;

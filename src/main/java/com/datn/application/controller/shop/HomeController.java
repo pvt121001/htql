@@ -35,8 +35,6 @@ public class HomeController {
     @Autowired
     private BrandService brandService;
 
-//    @Autowired
-//    private PostService postService;
 
     @Autowired
     private OrderService orderService;
@@ -50,25 +48,17 @@ public class HomeController {
     @GetMapping
     public String homePage(Model model){
 
-        //Lấy 5 sản phẩm mới nhất
+        //Lấy sản phẩm mới nhất
         List<ProductInfoDTO> newProducts = productService.getListNewProducts();
         model.addAttribute("newProducts", newProducts);
 
-        //Lấy 5 sản phẩm bán chạy nhất
+        //Lấy sản phẩm bán chạy nhất
         List<ProductInfoDTO> bestSellerProducts = productService.getListBestSellProducts();
         model.addAttribute("bestSellerProducts", bestSellerProducts);
 
-        //Lấy 5 sản phẩm có lượt xem nhiều
+        //Lấy sản phẩm có lượt xem nhiều
         List<ProductInfoDTO> viewProducts = productService.getListViewProducts();
         model.addAttribute("viewProducts", viewProducts);
-
-        //Lấy danh sách nhãn hiệu
-        List<Brand> brands = brandService.getListBrand();
-        model.addAttribute("brands",brands);
-//
-//        //Lấy 5 bài viết mới nhất
-//        List<Post> posts = postService.getLatesPost();
-//        model.addAttribute("posts", posts);
 
         return "shop/index";
     }
@@ -104,7 +94,7 @@ public class HomeController {
             model.addAttribute("canBuy", false);
         }
 
-        //Lấy danh sách size giầy
+        //Lấy danh sách
         model.addAttribute("sizeVn", Contant.SIZE_VN);
         model.addAttribute("sizeUs", Contant.SIZE_US);
         model.addAttribute("sizeCm", Contant.SIZE_CM);
@@ -113,7 +103,7 @@ public class HomeController {
     }
 
     @GetMapping("/dat-hang")
-    public String getCartPage(Model model, @RequestParam String id,@RequestParam String size){
+    public String getCartPage(Model model, @RequestParam String id,@RequestParam String size, @RequestParam int quantity){
 
         //Lấy chi tiết sản phẩm
         DetailProductInfoDTO product;
@@ -125,6 +115,7 @@ public class HomeController {
             return "error/500";
         }
         model.addAttribute("product", product);
+        model.addAttribute("quantity", quantity);
 
         //Validate size
         if (size.equalsIgnoreCase("S") && size.equalsIgnoreCase("L") && size.equalsIgnoreCase("XL") && size.equalsIgnoreCase("XXL") && size.equalsIgnoreCase("XXXL")) {
@@ -154,9 +145,11 @@ public class HomeController {
 
     @PostMapping("/api/orders")
     public ResponseEntity<Object> createOrder(@Valid @RequestBody CreateOrderRequest createOrderRequest) {
+        //  lấy thông tin người dùng đã được xác thực là thông qua SecurityContextHolder
         User user = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
         Order order = orderService.createOrder(createOrderRequest, user.getId());
 
+        //Nếu tạo thành công return 200 OK
         return ResponseEntity.ok(order.getId());
     }
 
