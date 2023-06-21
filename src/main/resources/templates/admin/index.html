@@ -570,8 +570,8 @@
                 type: 'GET',
                 contentType: 'application/json',
                 success: function (data) {
-                    $('#calcRevenues').append(`
-                        <strong>${data.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</strong>
+                    $('#calcRevenues').html(`
+                        <strong>${data}</strong>
                     `)
                 }
             })
@@ -582,8 +582,8 @@
                 type: 'GET',
                 contentType: 'application/json',
                 success: function (data) {
-                    $('#calcProfits').append(`
-                        <strong>${data.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</strong>
+                    $('#calcProfits').html(`
+                        <strong>${data}</strong>
                     `)
                 }
             })
@@ -594,7 +594,7 @@
                 type: 'GET',
                 contentType: 'application/json',
                 success: function (data) {
-                    $('#countUser').append(`
+                    $('#countUser').html(`
                         <strong>${data}</strong>
                     `)
                 }
@@ -607,7 +607,7 @@
                 type: 'GET',
                 contentType: 'application/json',
                 success: function (data) {
-                    $('#category-count').append(`
+                    $('#category-count').html(`
                         <strong>${data}</strong>
                     `)
                 }
@@ -620,7 +620,7 @@
                 type: 'GET',
                 contentType: 'application/json',
                 success: function (data) {
-                    $('#product-count').append(`
+                    $('#product-count').html(`
                         <strong>${data}</strong>
                     `)
                 }
@@ -633,7 +633,7 @@
                 type: 'GET',
                 contentType: 'application/json',
                 success: function (data) {
-                    $('#order-count').append(`
+                    $('#order-count').html(`
                         <strong>${data}</strong>
                     `)
                 }
@@ -646,16 +646,16 @@
                 type: 'GET',
                 contentType: 'application/json',
                 success: function (data) {
-                    $('#brands-count').append(`
+                    $('#brands-count').html(`
                         <strong>${data}</strong>
                     `)
                 }
             })
         }
         init();
-        // setInterval(() => {
-        //     init();
-        // }, 30000)
+        setInterval(() => {
+            init();
+        }, 30000)
     </script>
 </th:block>
 

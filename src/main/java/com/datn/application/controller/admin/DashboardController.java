@@ -51,12 +51,7 @@ public class DashboardController {
     public String dashboard(Model model){
         return "admin/index";
     }
-//
-//    @GetMapping("/api/admin/count/posts")
-//    public ResponseEntity<Object> getCountPost(){
-//        long countPosts = postService.getCountPost();
-//        return ResponseEntity.ok(countPosts);
-//    }
+
 
     @GetMapping("/api/admin/count/products")
     public ResponseEntity<Object> getCountProduct(){

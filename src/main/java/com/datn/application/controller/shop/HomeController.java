@@ -63,6 +63,42 @@ public class HomeController {
         return "shop/index";
     }
 
+
+
+    @GetMapping("/san-pham")
+    public String getProductShopPages(Model model){
+
+        //Lấy danh sách nhãn hiệu
+        List<Brand> brands = brandService.getListBrand();
+        model.addAttribute("brands",brands);
+        List<Long> brandIds = new ArrayList<>();
+        for (Brand brand : brands) {
+            brandIds.add(brand.getId());
+        }
+        model.addAttribute("brandIds", brandIds);
+
+        //Lấy danh sách danh mục
+        List<Category> categories = categoryService.getListCategories();
+        model.addAttribute("categories",categories);
+        List<Long> categoryIds = new ArrayList<>();
+        for (Category category : categories) {
+            categoryIds.add(category.getId());
+        }
+        model.addAttribute("categoryIds", categoryIds);
+
+        //Danh sách size của sản phẩm
+        model.addAttribute("sizeVn", Contant.SIZE_VN);
+
+        //Lấy danh sách sản phẩm
+        FilterProductRequest req = new FilterProductRequest(brandIds, categoryIds, new ArrayList<>(), (long) 0, Long.MAX_VALUE, 1);
+        PageableDTO result = productService.filterProduct(req);
+        model.addAttribute("totalPages", result.getTotalPages());
+        model.addAttribute("currentPage", result.getCurrentPage());
+        model.addAttribute("listProduct", result.getItems());
+
+        return "shop/product";
+    }
+
     @GetMapping("/{slug}/{id}")
     public String getProductDetail(Model model, @PathVariable String id){
 
@@ -157,40 +193,6 @@ public class HomeController {
     public ResponseEntity<Object> getListBestSellProducts(){
         List<ProductInfoDTO> productInfoDTOS = productService.getListBestSellProducts();
         return ResponseEntity.ok(productInfoDTOS);
-    }
-
-    @GetMapping("/san-pham")
-    public String getProductShopPages(Model model){
-
-        //Lấy danh sách nhãn hiệu
-        List<Brand> brands = brandService.getListBrand();
-        model.addAttribute("brands",brands);
-        List<Long> brandIds = new ArrayList<>();
-        for (Brand brand : brands) {
-            brandIds.add(brand.getId());
-        }
-        model.addAttribute("brandIds", brandIds);
-
-        //Lấy danh sách danh mục
-        List<Category> categories = categoryService.getListCategories();
-        model.addAttribute("categories",categories);
-        List<Long> categoryIds = new ArrayList<>();
-        for (Category category : categories) {
-            categoryIds.add(category.getId());
-        }
-        model.addAttribute("categoryIds", categoryIds);
-
-        //Danh sách size của sản phẩm
-        model.addAttribute("sizeVn", Contant.SIZE_VN);
-
-        //Lấy danh sách sản phẩm
-        FilterProductRequest req = new FilterProductRequest(brandIds, categoryIds, new ArrayList<>(), (long) 0, Long.MAX_VALUE, 1);
-        PageableDTO result = productService.filterProduct(req);
-        model.addAttribute("totalPages", result.getTotalPages());
-        model.addAttribute("currentPage", result.getCurrentPage());
-        model.addAttribute("listProduct", result.getItems());
-
-        return "shop/product";
     }
 
     @PostMapping("/api/san-pham/loc")
